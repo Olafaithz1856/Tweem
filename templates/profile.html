@@ -1,0 +1,104 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="profile-wrapper">
+
+    <!-- PROFILE CARD -->
+    <div class="profile-card">
+
+        <div class="profile-top">
+
+            <div class="profile-image-box">
+                <img src="{{ url_for('static', filename='uploads/' + user['profile_pic']) }}" class="profile-pic">
+                
+    
+            </div>
+
+            <div class="profile-info">
+                <h2>{{ user["name"] }}</h2>
+                <p>{{ user["email"] }}</p>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- SETTINGS GRID -->
+   <div class="settings-grid">
+
+    <a href="/account" class="setting-card">
+    <div class="icon">
+        <svg viewBox="0 0 24 24">
+            <path d="M12 12c2.7 0 5-2.3 5-5s-2.3-5-5-5-5 
+            2.3-5 5 2.3 5 5 5zm0 2c-3.3 0-10 
+            1.7-10 5v3h20v-3c0-3.3-6.7-5-10-5z"/>
+        </svg>
+    </div>
+    <div>
+        <h4>Account</h4>
+        <p>Manage your personal info</p>
+    </div>
+</a>
+
+<a href="/privacy" class="setting-card">
+    <div class="icon">
+        <svg viewBox="0 0 24 24">
+            <path d="M12 1L3 5v6c0 5.5 3.8 10.7 9 
+            12 5.2-1.3 9-6.5 9-12V5l-9-4z"/>
+        </svg>
+    </div>
+    <div>
+        <h4>Privacy</h4>
+        <p>Control your data</p>
+    </div>
+</a>
+
+<a href="/help" class="setting-card">
+    <div class="icon">
+        <svg viewBox="0 0 24 24">
+            <path d="M12 2a10 10 0 100 20 10 10 0 
+            000-20zm1 17h-2v-2h2v2zm2.1-7.5l-.9.9c-.7.7-1.2 
+            1.3-1.2 2.6h-2v-.5c0-1 .5-1.9 
+            1.2-2.6l1.2-1.2c.4-.4.6-.9.6-1.5 
+            0-1.1-.9-2-2-2s-2 .9-2 2H8a4 4 0 
+            118 0c0 .9-.4 1.8-1.2 2.5z"/>
+        </svg>
+    </div>
+    <div>
+        <h4>Help</h4>
+        <p>Get support</p>
+    </div>
+</a>
+
+<a href="/invite" class="setting-card">
+    <div class="icon">
+        <svg viewBox="0 0 24 24">
+            <path d="M16 11c1.7 0 3-1.3 3-3s-1.3-3-3-3-3 
+            1.3-3 3 1.3 3 3 3zm-8 0c1.7 0 3-1.3 
+            3-3S9.7 5 8 5 5 6.3 5 8s1.3 3 3 3zm0 
+            2c-2.7 0-8 1.3-8 4v3h16v-3c0-2.7-5.3-4-8-4zm8 
+            0c-.3 0-.7 0-1 .1 1.4 1 2 2.2 
+            2 3.9v3h7v-3c0-2.7-5.3-4-8-4z"/>
+        </svg>
+    </div>
+    <div>
+        <h4>Invite</h4>
+        <p>nvite friends</p>
+    </div>
+</a>
+
+</div>
+
+</div>
+
+<script>
+document.getElementById("uploadInput").onchange = function(e){
+    const [file] = this.files
+    if(file){
+        document.getElementById("profilePreview").src = URL.createObjectURL(file)
+    }
+}
+</script>
+
+{% endblock %}

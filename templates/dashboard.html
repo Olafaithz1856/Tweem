@@ -1,0 +1,158 @@
+{% extends "layout.html" %}
+
+{% block content %}
+{% if user['warning'] %}
+<div class="warning-box">
+    ⚠️ {{ user['warning'] }}
+</div>
+{% endif %}
+<div class="dashboard-wrapper">
+<img src="{{ url_for('static', filename='logo.jpg') }}" alt="Logo" class="header-logo">
+
+</div>
+<div class="welcome-bar">
+<h1 class="welcome-title">
+    Welcome to TWEEM Spiritual Counselling Bot "{{ session["user_name"] }}"
+    <svg class="icon">
+        <use href="#icon-wave"></use>
+    </svg>
+</h1>
+<p>Your personal space for spiritual guidance, counseling, and prayer support.</p>
+</div>
+<div class="welcome-card">
+    <div class="welcome-text">
+        <p>
+           TWEEM is a hybrid AI counseling system that combines automated chatbot responses with human counselor support. Our mission is to provide accessible spiritual guidance and emotional support to our community anytime anywhere. 
+            All your conversations and prayer requests are kept private and confidential.
+        </p>
+
+    </div>
+</div>
+<div class="dashboard-grid">
+
+<!-- Bible Verse -->
+
+<div class="verse-card">
+
+<h2>Verse of the Day</h2>
+
+<p class="verse-text">
+"{{ verse_text }}"
+</p>
+
+<span class="verse-ref">
+{{ verse_ref }}
+</span>
+
+</div>
+
+<!-- Notification -->
+
+<div class="reply-card">
+<h3>Notifications</h3>
+
+{% if notifications %}
+
+<ul>
+{% for note in notifications %}
+<li>
+    <strong>{{ note['message'] }}</strong><br>
+    <small>{{ note['created_at'] }}</small>
+</li>
+{% endfor %}
+</ul>
+
+{% else %}
+<p>No new notifications.</p>
+{% endif %}
+</div>
+
+<a href="{{ url_for('counselor_chat') }}">
+<button class="primary-btn">View Messages</button>
+</a>
+
+</div>
+
+<!-- Important Notice -->
+
+<div class="notice-card">
+<h3>Important Notice</h3>
+<p>Please update your account information to keep it secure.</p>
+
+<a href="#">
+<button class="secondary-btn">Update Now</button>
+</a>
+
+</div>
+
+</div>
+
+<!-- Bottom Section -->
+
+<div class="dashboard-bottom">
+
+<div class="recent-card">
+<h3>Recent Replies from Counselor</h3>
+
+<ul>
+
+{% if chats %}
+{% for chat in chats %}
+
+<li>
+{{ chat.message }}
+<small style="opacity:0.6;">{{ chat.created_at }}</small>
+</li>
+
+{% endfor %}
+{% else %}
+
+<p>No replies yet.</p>
+
+{% endif %}
+
+</ul>
+
+<a href="{{ url_for('counselor_chat') }}">
+<button class="primary-btn">View All Chats</button>
+</a>
+
+</div>
+
+<div class="testimony-card">
+<h3>My Testimonies</h3>
+
+
+<ul>
+
+{% if testimonies %}
+
+{% for t in testimonies %}
+
+<li>
+<strong>{{ t.title }}</strong>
+<br>
+<small>{{ t.message[:60] }}...</small>
+</li>
+
+{% endfor %}
+
+{% else %}
+
+<p>No testimonies submitted.</p>
+
+{% endif %}
+
+</ul>
+
+<a href="{{ url_for('testimony') }}">
+<button class="primary-btn">Submit New Testimony</button>
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}

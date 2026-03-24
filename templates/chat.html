@@ -1,0 +1,53 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="bible-card">
+
+    <h2>Counseling Chat</h2>
+
+    <div class="chat-box" id="chat-box">
+        {% for msg in messages %}
+    <div class="message {{ msg.role }}">
+            {% for paragraph in msg.message.split('\n\n') %}
+                <p style="margin-bottom: 10px;">{{ paragraph }}</p>
+            {% endfor %}
+        </div>
+    {% endfor %}
+    </div>
+
+    <form method="POST" class="chat-input">
+        <input type="text" name="message" placeholder="Share what’s on your heart..." required>
+        <button type="submit">Send</button>
+    </form>
+
+</div>
+
+<script>
+    var chatBox = document.getElementById("chat-box");
+    chatBox.scrollTop = chatBox.scrollHeight;
+</script>
+
+
+<script>
+const chatBox = document.getElementById("chat-box");
+
+// Scroll to bottom automatically
+chatBox.scrollTop = chatBox.scrollHeight;
+
+// Optional: Animate messages appearing one by one
+const messages = chatBox.querySelectorAll(".message.assistant");
+messages.forEach((msg, i) => {
+    msg.style.opacity = 0;
+    setTimeout(() => {
+        msg.style.transition = "opacity 0.5s";
+        msg.style.opacity = 1;
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }, i * 600); // 0.6s per segment
+});
+</script>
+
+
+</style>
+
+{% endblock %}

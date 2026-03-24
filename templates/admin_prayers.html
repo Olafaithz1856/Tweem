@@ -1,0 +1,43 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h1>Prayer Requests</h1>
+
+{% for prayer in prayers %}
+
+<div class="bible-card">
+
+<p><strong>{{ prayer.username }}</strong></p>
+
+<p>{{ prayer.request }}</p>
+
+<small>Status: {{ prayer.status }}</small>
+
+<br><br>
+
+<form method="POST">
+
+<input type="hidden" name="prayer_id" value="{{ prayer.id }}">
+
+<textarea name="response" placeholder="Write pastoral advice, Bible verse, encouragement..."></textarea>
+
+<br>
+
+<button type="submit">Send Response</button>
+
+</form>
+
+<br>
+
+<a href="/admin/delete_prayer/{{ prayer.id }}">
+<button>Delete</button>
+</a>
+
+</div>
+
+<br>
+
+{% endfor %}
+
+{% endblock %}

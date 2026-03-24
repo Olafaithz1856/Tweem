@@ -1,0 +1,52 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<section class="bible-section">
+
+    <h1>Bible & Devotional Access</h1>
+
+    <!-- 🔹 Daily Devotional -->
+    <div class="bible-card">
+        <h2>Daily Devotional</h2>
+
+        <div style="white-space: pre-line; line-height: 1.6;">
+            {{ devotional }}
+        </div>
+    </div>
+
+    <!-- 🔹 Bible Search -->
+    <div class="bible-card">
+        <h2>Search Scripture</h2>
+
+        <form method="POST">
+            <input type="text" name="reference" placeholder="Enter Bible reference e.g. John 3:16" required>
+            <button type="submit">Search</button>
+        </form>
+
+        {% if search_results %}
+        <div class="search-results">
+            {% for result in search_results %}
+                <p><strong>{{ result.reference }}</strong></p>
+                <p>{{ result.text }}</p>
+
+                <form method="POST" action="/save_verse">
+                    <input type="hidden" name="verse" value="{{ result.reference }} - {{ result.text }}">
+                    <button type="submit">Save Scripture</button>
+                </form>
+
+                <hr>
+            {% endfor %}
+        </div>
+        {% endif %}
+    </div>
+
+    <!-- 🔹 Saved Scriptures -->
+    <div class="bible-card">
+        <h3>Saved Scriptures</h3> 
+        <a href="/saved_scriptures" class="btn">View Saved Scriptures</a>
+    </div>
+
+</section>
+
+{% endblock %}

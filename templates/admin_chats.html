@@ -1,0 +1,33 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h1>Chat with {{ username }}</h1>
+
+<div class="bible-card">
+
+{% for chat in chats %}
+
+<p>
+<strong>{{ chat.sender }}:</strong>
+{{ chat.message }}
+</p>
+
+{% endfor %}
+
+{% for user in users %}
+
+<div class="bible-card">
+
+<h3>{{ user.username }}</h3>
+
+<a href="/admin/chat/{{ user.username }}">
+<button>Open Chat</button>
+</a>
+
+</div>
+
+{% endfor %}
+</div>
+
+{% endblock %}

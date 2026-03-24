@@ -1,0 +1,156 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h1>Admin Dashboard</h1>
+
+<div class="analytics-cards">
+
+<div class="card">
+<div class="card-top">
+<span class="icon">👤</span>
+</div>
+
+<h3>Total Users</h3>
+<p>{{ users }}</p>
+
+<div class="mini-graph"></div>
+</div>
+
+
+<div class="card">
+<div class="card-top">
+<span class="icon">💬</span>
+</div>
+
+<h3>Active Chats</h3>
+<p>{{ chats }}</p>
+
+<div class="mini-graph"></div>
+</div>
+
+
+<div class="card">
+<div class="card-top">
+<span class="icon">🙏</span>
+</div>
+
+<h3>Prayer Requests</h3>
+<p>{{ prayers }}</p>
+
+<div class="mini-graph"></div>
+</div>
+
+
+<div class="card">
+<div class="card-top">
+<span class="icon">⭐</span>
+</div>
+
+<h3>Testimonies</h3>
+<p>{{ testimonies }}</p>
+
+<div class="mini-graph"></div>
+</div>
+
+</div>
+<div class="dashboard-panels">
+
+<!-- Counselling Requests -->
+<div class="dashboard-card">
+
+<div class="card-header">
+<h3>Counselling Requests</h3>
+<a href="/admin/chats">View All</a>
+</div>
+
+<table class="dashboard-table">
+
+<tr>
+<th>Username</th>
+<th>Status</th>
+<th>Last Message</th>
+<th></th>
+</tr>
+
+{% for chat in recent_chats %}
+
+<tr>
+<td>{{ chat["username"] }}</td>
+
+<td>
+<span class="status new">NEW</span>
+</td>
+
+<td>{{ chat["message"] }}</td>
+
+<td>
+<a href="/admin/chat/{{ chat['username'] }}">
+<button class="open-btn">Open</button>
+</a>
+</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+</div>
+
+
+<!-- Prayer Requests -->
+<div class="dashboard-card">
+
+<div class="card-header">
+<h3>Recent Prayer Requests</h3>
+<a href="/admin/prayers">View All</a>
+</div>
+
+<ul class="prayer-list">
+
+{% for prayer in recent_prayers %}
+
+<li>
+<strong>{{ prayer["username"] }}</strong>
+<p>{{ prayer["request"] }}</p>
+</li>
+
+{% endfor %}
+
+</ul>
+
+</div>
+
+</div>
+
+
+<script>
+
+const ctx = document.getElementById('usersChart');
+
+new Chart(ctx, {
+    type: 'line',
+    data: {
+        labels: ['Week 1','Week 2','Week 3','Week 4'],
+        datasets: [{
+            label: 'New Users',
+            data: [5, 12, 18, 25],
+            borderColor: '#4fd1c5',
+            backgroundColor: 'rgba(79,209,197,0.2)',
+            tension: 0.4
+        }]
+    },
+    options: {
+        plugins:{
+            legend:{display:false}
+        },
+        scales:{
+            x:{display:true},
+            y:{display:true}
+        }
+    }
+});
+
+</script>
+{% endblock %}

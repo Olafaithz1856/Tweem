@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" href="static/css/auth.css">
+    <title>Create Account | TWEEM</title>
+</head>
+<body>
+
+<div class="auth-container">
+    <div class="auth-box">
+        <img src="{{ url_for('static', filename='logo.jpg') }}" alt="TWEEM Logo" class="logo">
+        <h2>Create <span>Account</span></h2>
+        <p class="subtitle">Join TWEEM Spiritual Counseling Bot</p>
+
+<form method="POST" enctype="multipart/form-data">
+    <input type="text" name="username" placeholder="username" required>
+    <input type="email" name="email" placeholder="Email address" required>
+    <input type="password" name="password" placeholder="Password">
+    <input type="password" name="password" placeholder="Comfirm password">
+    <button type="submit">Register</button>
+</form>
+
+
+
+<p>
+    Already have an account?
+    <a href="/">Login</a>
+</p>
+</div>
+
+</body>
+</html>
+
+

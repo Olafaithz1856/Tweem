@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>TWEEM</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- SVG Icon Definitions -->
+<svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+
+  <symbol id="icon-dashboard" viewBox="0 0 24 24">
+    <path d="M3 13h8V3H3v10zm10 8h8V11h-8v10zM3 21h8v-6H3v6zm10-8h8V3h-8v10z"/>
+  </symbol>
+
+  <symbol id="icon-chat" viewBox="0 0 24 24">
+    <path d="M4 4h16v12H5.17L4 17.17V4z"/>
+  </symbol>
+
+  <symbol id="icon-bible" viewBox="0 0 24 24">
+    <path d="M6 2h9a3 3 0 013 3v17H6a3 3 0 01-3-3V5a3 3 0 013-3z"/>
+  </symbol>
+
+  <symbol id="icon-testimony" viewBox="0 0 24 24">
+    <path d="M12 2a10 10 0 100 20 10 10 0 000-20zm1 14h-2v-2h2v2zm0-4h-2V6h2v6z"/>
+  </symbol>
+
+  <symbol id="icon-prayer" viewBox="0 0 24 24">
+    <path d="M12 2l4 4-4 4-4-4 4-4zm0 20c-4-4-6-8-6-12h12c0 4-2 8-6 12z"/>
+  </symbol>
+
+  <symbol id="icon-user" viewBox="0 0 24 24">
+    <path d="M12 12c2.7 0 5-2.3 5-5S14.7 2 12 2 7 4.3 7 7s2.3 5 5 5zm0 2c-4 0-7 2-7 4v2h14v-2c0-2-3-4-7-4z"/>
+  </symbol>
+
+  <symbol id="icon-users" viewBox="0 0 24 24">
+    <path d="M16 11c1.66 0 3-1.34 3-3S17.66 5 16 5s-3 1.34-3 3 1.34 3 3 3zM8 11c1.66 0 3-1.34 3-3S9.66 5 8 5 5 6.34 5 8s1.34 3 3 3z"/>
+  </symbol>
+
+  <symbol id="icon-logout" viewBox="0 0 24 24">
+    <path d="M16 13v-2H7V8l-5 4 5 4v-3h9zm3-10H9a2 2 0 00-2 2v3h2V5h10v14H9v-3H7v3a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2z"/>
+  </symbol>
+  <symbol id="icon-wave" viewBox="0 0 24 24">
+    <path d="M12 2c-1 0-2 .8-2 2v6H8V4a4 4 0 118 0v6h-2V4c0-1.2-1-2-2-2zm-4 8h8c1.1 0 2 .9 2 2v2c0 3.3-2.7 6-6 6s-6-2.7-6-6v-2c0-1.1.9-2 2-2z"/>
+</symbol>
+
+</svg>
+</head>
+<body class="light">
+
+<div class="app">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="logo" onclick="toggleSidebar()">
+            <img src="{{ url_for('static', filename='images/Tweem logo.jpg') }}" class="app-logo">
+        </div>
+
+        <nav class="menu">
+            {% if session.get("role") == "admin" %}
+
+            <a href="/admin/dashboard">
+                <svg><use href="#icon-dashboard"/></svg>
+                Dashboard
+            </a>
+
+            <a href="/admin/chats">
+                <svg><use href="#icon-chat"/></svg>
+                Counselling Chats
+            </a>
+
+            <a href="/admin/prayers">
+                <svg><use href="#icon-prayer"/></svg>
+                Prayer Requests
+            </a>
+
+            <a href="/admin/testimonies">
+                <svg><use href="#icon-testimony"/></svg>
+                Testimonies
+            </a>
+
+            <a href="/admin/users">
+                <svg><use href="#icon-users"/></svg>
+                Manage Users
+            </a>
+            <a href="/admin/contacts">
+                <svg><use href="#icon-chat"/></svg>
+                Contact Messages
+            </a>
+            {% else %}
+
+            <a href="/dashboard">
+                <svg><use href="#icon-dashboard"/></svg>
+                Dashboard
+            </a>
+
+            <a href="/chat">
+                <svg><use href="#icon-chat"/></svg>
+                Chat with BOT
+            </a>
+
+            <a href="/bible">
+                <svg><use href="#icon-bible"/></svg>
+                Bible
+            </a>
+
+            <a href="/testimony">
+                <svg><use href="#icon-testimony"/></svg>
+                Testimony
+            </a>
+
+            <a href="/prayer">
+                <svg><use href="#icon-prayer"/></svg>
+                Prayer Request
+            </a>
+
+            <a href="/counselor_chat">
+                <svg><use href="#icon-chat"/></svg>
+                Talk to a Counsellor
+            </a>
+
+            <a href="/profile">
+                <svg><use href="#icon-user"/></svg>
+                Profile
+            </a>
+            <a href="/about">
+                <svg><use href="#icon-testimony" /></svg> 
+                About
+            </a>
+             <a href="/contact">
+                <svg><use href="#icon-chat" /></svg> 
+                Contact us
+            </a>
+            {% endif %}
+            
+            
+            <a href="/logout">
+                <svg><use href="#icon-logout"/></svg>
+                Logout
+            </a>
+        </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="content" id="content">
+
+       <header class="topbar">
+
+<div class="topbar-right">
+
+<div class="topbar-right">
+
+    <div class="admin-profile">
+
+        <!-- PROFILE IMAGE -->
+        <div class="profile-dropdown">
+            <img 
+            src="{{ url_for('static', filename='uploads/' + user['profile_pic']) if user is defined and user['profile_pic'] else url_for('static', filename='logo.jpg') }}" 
+            class="profile-img"
+            >
+
+
+        <!-- USER INFO -->
+        <div class="admin-info">
+            <span class="admin-name">{{ session.get("user_name", "User") }}</span>
+            <span class="admin-role">{{ session.get("role", "Member") }}</span>
+        </div>
+</div>
+
+</div>
+
+</header>
+
+
+        <!-- Page Content Will Be Inserted Here -->
+        {% block content %}{% endblock %}
+
+    </main>
+
+</div>
+
+<script src="{{ url_for('static', filename='js/app.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</body>
+</html>

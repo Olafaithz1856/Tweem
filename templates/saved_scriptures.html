@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<section class="bible-section">
+
+<h1>Your Saved Scriptures</h1>
+
+<div class="bible-card">
+
+{% if verses %}
+    <ul>
+        {% for verse in verses %}
+            <li>{{ verse[0] }}</li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>No saved scriptures yet.</p>
+{% endif %}
+
+<a href="/bible" class="btn"> Back to Bible</a>
+</div>
+
+</section>
+
+{% endblock %}
+
+
+</body>
+</html>

@@ -1,0 +1,56 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="contact-container">
+
+    <!-- HEADER -->
+    <div class="contact-header">
+        <h1>Contact Support</h1>
+        <p>Need help or want to reach out? Send us a message and we’ll respond as soon as possible.</p>
+    </div>
+
+    <!-- CONTACT FORM -->
+    <div class="contact-card">
+        <form method="POST" action="/contact">
+
+            <input type="text" name="name" placeholder="Your Name" required>
+
+            <input type="email" name="email" placeholder="Your Email" required>
+
+            <textarea name="message" placeholder="Write your message..." rows="5" required></textarea>
+
+            <button type="submit">Send Message</button>
+
+        </form>
+    <h3>Your Messages</h3>
+
+    {% if messages %}
+        {% for msg in messages %}
+        <div class="contact-card">
+
+            <p><strong>You:</strong> {{ msg["message"] }}</p>
+
+            {% if msg["reply"] %}
+                <p style="color: lightgreen;">
+                    <strong>Admin:</strong> {{ msg["reply"] }}
+                </p>
+            {% else %}
+                <p style="color: gray;">Waiting for reply...</p>
+            {% endif %}
+
+        </div>
+        {% endfor %}
+    {% endif %}
+    </div>
+
+    <!-- CONTACT INFO -->
+    <div class="feature-card">
+        <h3>Other Ways to Reach Us</h3>
+        <p>📧 Email: support@tweem.com</p>
+        <p>📞 Phone: +234 xxx xxx xxxx</p>
+    </div>
+
+</div>
+
+{% endblock %}

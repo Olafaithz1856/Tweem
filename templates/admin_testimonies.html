@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h1>Testimonies</h1>
+
+<div class="dashboard-card">
+
+<table class="dashboard-table">
+
+<tr>
+<th>User</th>
+<th>Title</th>
+<th>Testimony</th>
+<th>Action</th>
+</tr>
+
+{% for testimony in testimonies %}
+
+<tr>
+<td>{{ testimony["user_name"] }}</td>
+<td>{{ testimony["title"] }}</td>
+<td>{{ testimony["message"] }}</td>
+
+<td>
+<a href="/admin/delete_testimony/{{ testimony['id'] }}">
+<button class="delete-btn">Delete</button>
+</a>
+</td>
+
+</tr>
+
+{% endfor %}
+
+</table>
+
+{% endblock %}

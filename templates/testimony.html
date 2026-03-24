@@ -1,0 +1,61 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h1>Share Your Testimony</h1>
+
+{% if message %}
+<p style="color:rgb(255, 255, 255);">{{ message }}</p>
+{% endif %}
+
+<div class="bible-card">
+
+<form method="POST">
+
+<div class="form-group">
+<label>Title</label>
+<input type="text" name="title" placeholder="Title of your testimony" required>
+</div>
+
+<div class="form-group">
+<label>Your Experience</label>
+<textarea name="message" rows="6" placeholder="Share how this counseling system helped you..." required></textarea>
+</div>
+
+<button type="submit">Submit Testimony</button>
+
+</form>
+
+</div>
+
+<br>
+
+<h2>Community Testimonies</h2>
+
+{% if testimonies %}
+
+{% for testimony in testimonies %}
+
+<div class="bible-card">
+
+<h3>{{ testimony.title }}</h3>
+
+<p>{{ testimony.message }}</p>
+
+<small>
+👤 {{ testimony.username }} • {{ testimony.created_at }}
+</small>
+
+</div>
+
+<br>
+
+{% endfor %}
+
+{% else %}
+
+<p>No testimonies shared yet.</p>
+
+{% endif %}
+
+{% endblock %}

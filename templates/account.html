@@ -1,0 +1,104 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h2>Account Settings</h2>
+
+<div class="account-container">
+    <div class="profile-image-box">
+                <img src="{{ url_for('static', filename='uploads/' + user['profile_pic']) }}" class="profile-pic">
+            </div>
+            <div class="profile-info">
+                <h2>{{ user["name"] }}</h2>
+                <p>{{ user["email"] }}</p>
+            </div>
+     <!-- UPDATE P pics -->
+    <form method="POST" action="/upload_pic" enctype="multipart/form-data">
+        <label>Profile Picture</label><br>
+        <input type="file" name="profile_pic">
+        <button type="submit">Upload</button>
+    </form>
+
+    <!-- UPDATE NAME -->
+    <form method="POST" action="/update_profile">
+        <label>Full Name</label>
+        <input type="text" name="name" value="{{ user['name'] }}">
+        <button type="submit">Save Name</button>
+    </form>
+
+    <!-- UPDATE EMAIL -->
+    <form method="POST" action="/update_email">
+        <label>Email Address</label>
+        <input type="email" name="email" value="{{ user['email'] }}">
+        <button type="submit">Update Email</button>
+    </form>
+
+    <!-- CHANGE PASSWORD -->
+    <form method="POST" action="/change_password">
+        <label>Current Password</label>
+        <div class="password-field">
+        <input type="password" id="new_password" name="new_password">
+        <span onclick="togglePassword('new_password')">👁️</span>
+        </div>
+
+        <button type="submit">Change Password</button>
+    </form>
+
+    <!-- DELETE ACCOUNT -->
+    <form method="POST" action="/delete_account">
+    <label>Enter Password to Confirm</label>
+    <input type="password" name="password" required>
+
+    <button class="danger">Delete Account</button>
+    </form>
+
+</div>
+<style>
+.account-container {
+    background: rgba(255,255,255,0.05);
+    padding: 10px;
+    border-radius: 15px;
+    width: 50%;
+}
+
+.account-container form {
+    margin-bottom: 10px;
+}
+
+.account-container input {
+    padding: 4px;
+    width: 100%;
+    margin-top: 5px;
+}
+
+.account-container button {
+    margin-top: 5px;
+    padding: 4px 8px;
+    background: #4da3ff;
+    color: white;
+    width: 50%;
+    position: center;
+    border: none;
+    border-radius: 6px;
+}
+.account-container .danger {
+    background: #ff4d4d;
+}
+.password-field {
+    position: relative;
+}
+
+.password-field span {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    cursor: pointer;
+}
+</style>
+<script>
+function togglePassword(id) {
+    const input = document.getElementById(id);
+    input.type = input.type === "password" ? "text" : "password";
+}
+</script>
+</div>
+{% endblock %}

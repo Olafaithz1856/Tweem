@@ -1,0 +1,181 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h1>Talk to a Counsellor</h1>
+
+<div class="bible-card">
+
+<div id="chatBox" class="chat-box">
+   
+
+{% for chat in chats %}
+
+{% if chat.sender == "user" %}
+
+<div class="message right">
+<strong>You:</strong> {{ chat.message }}
+</div>
+{% else %}
+<div class="message left">
+<strong>Counsellor:</strong> {{ chat.message }}
+</div>
+{% endif %}
+
+{% endfor %}
+
+</div>
+<div id="typingIndicator" style="font-style:italic;color:gray;"></div>
+<form method="POST" class="chat-input">
+        <input type="text" name="message" placeholder="Share what’s on your heart..." required>
+        <button type="submit">Send</button>
+    </form>
+
+</div>
+
+<style>
+
+.chat-box{
+height:400px;
+overflow-y:auto;
+display:flex;
+flex-direction:column;
+gap:10px;
+padding:10px;
+}
+
+.message{
+padding:10px 15px;
+border-radius:15px;
+max-width:60%;
+font-size:14px;
+}
+
+.left{
+background:#f1f1f1;
+color: black;
+align-self:flex-start;
+}
+
+.right{
+background:#4a7cff;
+color:white;
+align-self:flex-end;
+}
+
+.chat-form{
+display:flex;
+gap:10px;
+margin-top:15px;
+}
+
+.chat-form input{
+flex:1;
+padding:10px;
+border-radius:8px;
+border:1px solid #ccc;
+}
+
+.chat-form button{
+padding:10px 20px;
+background:black;
+color:white;
+border:none;
+border-radius:10px;
+cursor:pointer;
+}
+.chat-box button{
+    background-size: auto;
+
+}
+
+</style>
+
+<script>
+
+let lastMessageCount = 0;
+
+function showNotification(text){
+
+let box = document.getElementById("notificationBox");
+
+let note = document.createElement("div");
+
+note.className = "notification";
+
+note.innerText = text;
+
+box.appendChild(note);
+
+setTimeout(()=>{
+
+note.remove();
+
+},4000);
+
+}
+
+function loadMessages(){
+
+fetch("/get_messages/{{ username if username else session['user_name'] }}")
+
+.then(res => res.json())
+
+.then(data => {
+
+let chatBox = document.getElementById("chatBox");
+
+let newCount = data.messages.length;
+
+if(newCount > lastMessageCount){
+
+showNotification("🔔 New message received");
+
+}
+
+lastMessageCount = newCount;
+
+chatBox.innerHTML = "";
+
+data.messages.forEach(msg => {
+
+if(msg.sender === "user"){
+
+chatBox.innerHTML += "<div class='message right'><strong>You:</strong> " + msg.message + "</div>";
+
+}else{
+
+chatBox.innerHTML += "<div class='message left'><strong>Counsellor:</strong> " + msg.message + "</div>";
+
+}
+
+});
+
+chatBox.scrollTop = chatBox.scrollHeight;
+
+});
+
+}
+
+setInterval(loadMessages,2000);
+
+</script>
+<script>
+
+const inputBox = document.querySelector("input[name='message']");
+
+inputBox.addEventListener("input", function(){
+
+fetch("/typing", {
+method:"POST",
+headers:{
+"Content-Type":"application/x-www-form-urlencoded"
+},
+body:"username={{ session['user_name'] }}"
+});
+
+});
+
+</script>
+<div id="notificationBox"></div>
+{% endblock %}

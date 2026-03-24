@@ -1,0 +1,89 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<h1>Manage Users</h1>
+
+<div class="dashboard-card">
+
+<table class="dashboard-table">
+
+<tr>
+<th>ID</th>
+<th>Name</th>
+<th>Email</th>
+<th>Role</th>
+<th>Action</th>
+</tr>
+
+{% for user in users %}
+
+<tr>
+
+<td>{{ user["id"] }}</td>
+<td>{{ user["name"] }}</td>
+<td>{{ user["email"] }}</td>
+<td>{{ user["role"] }}</td>
+
+<td>
+    <!-- BAN -->
+    <a href="/admin/ban_user/{{ user['id'] }}" class="ban-btn">Ban</a>
+
+    <!-- UNBAN -->
+    <a href="/admin/unban_user/{{ user['id'] }}" class="unban-btn">Unban</a>
+
+    <!-- WARN -->
+    <a href="/admin/warn_user/{{ user['id'] }}" class="warn-btn">Warn</a>
+<a href="/admin/delete_user/{{ user['id'] }}">
+<button class="delete-btn">Delete</button>
+</a>
+
+</td>
+<td>
+    {% if user['status'] == 'banned' %}
+        <span style="color:red;">Banned</span>
+    {% else %}
+        <span style="color:green;">Active</span>
+    {% endif %}
+</td>
+</tr>
+
+{% endfor %}
+
+</table>
+<form method="POST" action="/admin/send_notice">
+    <input type="text" name="message" placeholder="Enter notice..." required>
+    <button type="submit">Send Notice</button>
+</form>
+<style>
+    .ban-btn {
+    background: orange;
+    padding: 5px 10px;
+    color: white;
+    border-radius: 5px;
+}
+
+.unban-btn {
+    background: green;
+    padding: 5px 10px;
+    color: white;
+    border-radius: 5px;
+}
+
+.warn-btn {
+    background: #ffcc00;
+    padding: 5px 10px;
+    color: black;
+    border-radius: 5px;
+}
+
+.delete-btn {
+    background: red;
+    padding: 5px 10px;
+    color: white;
+    border-radius: 5px;
+}
+</style>
+</div>
+
+{% endblock %}
