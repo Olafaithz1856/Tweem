@@ -124,6 +124,7 @@ def init_db():
 init_db()
 
 
+
 # ---------- LOGIN PAGE ----------
 @app.route("/", methods=["GET", "POST"])
 def home():

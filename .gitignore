@@ -3,7 +3,7 @@
 "TWEEM APP/.env"
 
 # Database
-database.db
+#database.db
 
 # VSCode settings
 .vscode/
