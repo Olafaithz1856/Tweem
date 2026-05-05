@@ -39,13 +39,9 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = "tweem_secret_key"
 
-app = Flask(__name__)
-app.secret_key = "your_secret_key_here"
-
 # Initialize OpenAI
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 gemini_client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
-app.secret_key = "tweem_secret_key"
 
 def init_db():
     conn = sqlite3.connect("database.db", timeout=10)
@@ -115,6 +111,36 @@ def init_db():
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER,
         message TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+    """)
+    cursor.execute("""
+CREATE TABLE IF NOT EXISTS counselor_chats (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    username TEXT,
+    sender TEXT,
+    message TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+""")
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS daily_verse (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        verse_text TEXT,
+        verse_ref TEXT,
+        date TEXT
+    )
+    """)
+
+    cursor.execute("""
+    CREATE TABLE IF NOT EXISTS contact_messages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        name TEXT,
+        email TEXT,
+        message TEXT,
+        reply TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )
     """)
@@ -433,7 +459,6 @@ from google import genai
 import os
 import time
 
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 # ---------- RULE-BASED ----------
 def rule_based_response(user_message, history=""):
@@ -597,7 +622,6 @@ import datetime
 from google import genai
 import os
 
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 # ================= DEVOTIONAL LIST =================
 DEVOTIONALS = [
@@ -1482,7 +1506,7 @@ cursor = conn.cursor()
 cursor.execute("UPDATE users SET role='admin' WHERE email='oladipupoaustin1856@gmail.com'")
 conn.commit()
 conn.close()
-conn.close()
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
