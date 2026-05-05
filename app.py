@@ -152,43 +152,48 @@ init_db()
 
 
 # ---------- LOGIN PAGE ----------
+from werkzeug.security import check_password_hash
+
 @app.route("/", methods=["GET", "POST"])
 def home():
     if request.method == "POST":
-        email = request.form["email"]
-        password = request.form["password"]
+        email = request.form["email"].strip()
+        password = request.form["password"].strip()
 
         conn = sqlite3.connect("database.db")
         cursor = conn.cursor()
 
-        cursor.execute(
-            "SELECT * FROM users WHERE email=? AND password=?",
-            (email, password)
-        )
+        cursor.execute("SELECT * FROM users WHERE email=?", (email,))
         user = cursor.fetchone()
+
         conn.close()
 
-        if user:
+        #  Email not found
+        if not user:
+            flash("❌ Account does not exist. Please register")
+            return redirect(url_for("home"))
 
-            session["user_id"] = user[0]
-            session["user_name"] = user[1]
-            session["role"] = user[4]
-            session["is_verified"] = 0
-            
-            flash("Login successful! Welcome back 🙌")
+        #  Wrong password
+        if not check_password_hash(user[3], password):
+            flash("❌ Incorrect password")
+            return redirect(url_for("home"))
 
-            if user[4] == "admin":
-                return redirect(url_for("admin_dashboard"))
+        # ✅ SUCCESS
+        session["user_id"] = user[0]
+        session["user_name"] = user[1]
+        session["role"] = user[4]
+        session["is_verified"] = 0
 
-            elif user[4] == "user":
-                return redirect(url_for("dashboard"))
+        flash("✅ Login successful! Welcome back 🙌")
 
-            else:
-                return "Invalid login details"
+        if user[4] == "admin":
+            return redirect(url_for("admin_dashboard"))
+        else:
+            return redirect(url_for("dashboard"))
 
-    return render_template("index.html")
+    return redirect(url_for("home"))
 
-#------ Send user to all templates-------
+#------ Send user to all templates------- 
 @app.context_processor
 def inject_user():
     if "user_id" in session:
@@ -206,34 +211,58 @@ def inject_user():
     return dict(user=None)
 
 # ---------- REGISTER ----------
+import re
+from werkzeug.security import generate_password_hash
+
 @app.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
-        name = request.form["username"]
-        email = request.form["email"]
-        password = request.form["password"]
+        name = request.form["username"].strip()
+        email = request.form["email"].strip()
+        password = request.form["password"].strip()
 
         conn = sqlite3.connect("database.db")
         cursor = conn.cursor()
 
-        try:
-            cursor.execute("""
-            INSERT INTO users (name, email, password, profile_pic)
+        # 🔹 VALIDATIONS
+        if not name or not email or not password:
+            flash("⚠️ All fields are required")
+            return redirect(url_for("register"))
+
+        # Email format check
+        if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+            flash("Invalid email format")
+            return redirect(url_for("register"))
+
+        # Password length
+        if len(password) < 4:
+            flash("⚠️ Password must be at least 4 characters")
+            return redirect(url_for("register"))
+
+        # Check if user already exists
+        cursor.execute("SELECT * FROM users WHERE email=?", (email,))
+        existing_user = cursor.fetchone()
+
+        if existing_user:
+            flash("Account already exists, please login")
+            return redirect(url_for("home"))
+
+        # Hash password
+        hashed_password = generate_password_hash(password)
+
+        cursor.execute("""
+            INSERT INTO users (name, email, password, role)
             VALUES (?, ?, ?, ?)
-            """, (name, email, password, "default-avatar.png"))
+        """, (name, email, hashed_password, "user"))
 
-            conn.commit()
-
-        except sqlite3.IntegrityError:
-            return "Email already exists"
-
-        finally:
-            conn.close()   
-
+        conn.commit()
         conn.close()
+
+        flash("✅ Account created successfully! Please login")
         return redirect(url_for("home"))
 
-    return render_template("register.html")
+    return redirect(url_for("register"))
+
 import uuid
 from werkzeug.security import generate_password_hash
 
@@ -458,7 +487,7 @@ def prayer():
 from google import genai
 import os
 import time
-
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 # ---------- RULE-BASED ----------
 def rule_based_response(user_message, history=""):
@@ -551,9 +580,9 @@ def chat():
         # ---------- STEP 2: GEMINI (ONLY IF NEEDED) ----------
         if not ai_reply:
             try:
-                time.sleep(1)  # avoid rate limit
+                time.sleep(1)  
 
-                response = client.models.generate_content(
+                response = gemini_client.generate_content(
                     model="gemini-2.5-flash",
                     contents=f"""
 You are a compassionate Christian spiritual counselor.
@@ -621,59 +650,119 @@ Tell me more — I'm listening."""
 import datetime
 from google import genai
 import os
-
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 # ================= DEVOTIONAL LIST =================
 DEVOTIONALS = [
-{"title":"Trusting God","verse":"Proverbs 3:5-6","text":"Trust in the Lord with all your heart.","message":"Even when life feels confusing, God knows the way.","prayer":"Lord, help me trust You more each day. Amen."},
+{
+"title": "Trusting God",
+"verse": "Proverbs 3:5-6",
+"text": "Trust in the Lord with all your heart.",
 
-{"title":"God’s Strength","verse":"Isaiah 40:31","text":"Those who hope in the Lord will renew their strength.","message":"God gives strength when you feel weak.","prayer":"Father, renew my strength today. Amen."},
+"message": """
+Trusting God is not always easy, especially when life feels uncertain or confusing. There are moments when things don’t go the way we expect, and it becomes tempting to rely on our own understanding.
 
-{"title":"Peace in Christ","verse":"John 14:27","text":"Peace I leave with you; my peace I give you.","message":"God’s peace is greater than any worry.","prayer":"Lord, fill me with Your peace. Amen."},
+But God calls us to trust Him completely, not partially. He sees what we cannot see and understands what we cannot understand. Even when the path is unclear, His direction is always perfect and leading us toward good.
 
-{"title":"You Are Loved","verse":"Jeremiah 31:3","text":"I have loved you with an everlasting love.","message":"God loves you deeply, always.","prayer":"Thank You Lord for loving me. Amen."},
+When we surrender our plans to God, we find peace in knowing that He is in control.
+""",
 
-{"title":"Do Not Fear","verse":"Isaiah 41:10","text":"Do not fear, for I am with you.","message":"God is always with you, even in fear.","prayer":"Lord, remove my fear and give me courage. Amen."},
+"application": """
+Let go of the need to control everything today. In your decisions, big or small, ask God for guidance first. Trust that His way is better than your emotions or logic.
+""",
 
-{"title":"God Provides","verse":"Philippians 4:19","text":"God will meet all your needs.","message":"God knows what you need and will provide.","prayer":"Father, I trust Your provision. Amen."},
+"prayer": """
+Lord, help me to trust You with all my heart. When I feel confused or unsure, remind me that You are guiding my steps. Teach me to depend fully on You. Amen.
+"""
+},
 
-{"title":"New Beginning","verse":"2 Corinthians 5:17","text":"Anyone in Christ is a new creation.","message":"Every day is a fresh start with God.","prayer":"Lord, help me walk in newness today. Amen."},
+{
+"title": "God’s Strength",
+"verse": "Isaiah 40:31",
+"text": "Those who hope in the Lord will renew their strength.",
 
-{"title":"Stay Strong","verse":"Joshua 1:9","text":"Be strong and courageous.","message":"God is with you wherever you go.","prayer":"Give me strength, Lord. Amen."},
+"message": """
+Life can drain our strength emotionally, physically, and spiritually. There are times when we feel like we cannot continue, but God promises renewal for those who wait on Him.
 
-{"title":"God Cares","verse":"1 Peter 5:7","text":"Cast all your anxiety on Him.","message":"You don’t have to carry your burdens alone.","prayer":"Lord, I give You my worries. Amen."},
+God’s strength is not temporary like human strength. It is steady, powerful, and always available. When we depend on Him, He lifts us beyond our natural limits.
 
-{"title":"Joy in the Lord","verse":"Psalm 118:24","text":"This is the day the Lord has made.","message":"Choose joy today.","prayer":"Help me rejoice today, Lord. Amen."},
+Even in weakness, God is working in us, building endurance and faith.
+""",
 
-{"title":"God is Near","verse":"Psalm 34:18","text":"The Lord is close to the brokenhearted.","message":"God is closest when you feel broken.","prayer":"Stay near me Lord. Amen."},
+"application": """
+Instead of giving up when you feel weak, pause and pray. Let God refresh your heart and give you new energy to continue.
+""",
 
-{"title":"Faith Over Fear","verse":"2 Timothy 1:7","text":"God gave us a spirit not of fear.","message":"Walk in faith, not fear.","prayer":"Strengthen my faith, Lord. Amen."},
+"prayer": """
+Father, renew my strength today. When I feel tired or overwhelmed, lift me up and give me endurance to keep going. Amen.
+"""
+},
 
-{"title":"God is Light","verse":"1 John 1:5","text":"God is light; in Him is no darkness.","message":"God brings clarity into confusion.","prayer":"Shine Your light in my life, Lord. Amen."},
+{
+"title": "Peace in Christ",
+"verse": "John 14:27",
+"text": "Peace I leave with you; my peace I give you.",
 
-{"title":"Be Patient","verse":"Romans 12:12","text":"Be patient in affliction.","message":"God is working even when you wait.","prayer":"Teach me patience, Lord. Amen."},
+"message": """
+The peace that Jesus gives is different from what the world offers. It is not based on circumstances but on His presence in our lives.
 
-{"title":"God is Faithful","verse":"Lamentations 3:23","text":"His mercies are new every morning.","message":"God is faithful every single day.","prayer":"Thank You for Your faithfulness. Amen."},
+Even in storms, God’s peace can calm our hearts. It removes fear, anxiety, and confusion, replacing them with confidence in Him.
 
-{"title":"Walk in Love","verse":"Ephesians 5:2","text":"Walk in the way of love.","message":"Let love guide your actions today.","prayer":"Help me show love, Lord. Amen."},
+When we allow Christ to rule our hearts, His peace becomes our foundation.
+""",
 
-{"title":"God is My Refuge","verse":"Psalm 46:1","text":"God is our refuge and strength.","message":"Run to God when life feels heavy.","prayer":"Be my refuge, Lord. Amen."},
+"application": """
+Whenever anxiety rises, pause and remind yourself of God’s promises. Speak peace over your mind and trust Him.
+""",
 
-{"title":"Hope in God","verse":"Romans 15:13","text":"May God fill you with hope.","message":"Hope is found in God alone.","prayer":"Fill me with hope today. Amen."},
+"prayer": """
+Lord Jesus, fill my heart with Your peace. Remove every fear and anxiety, and help me rest in You. Amen.
+"""
+},
 
-{"title":"Stay Humble","verse":"James 4:10","text":"Humble yourselves before the Lord.","message":"God lifts those who stay humble.","prayer":"Keep me humble, Lord. Amen."},
+{
+"title": "You Are Loved",
+"verse": "Jeremiah 31:3",
+"text": "I have loved you with an everlasting love.",
 
-{"title":"God Guides","verse":"Psalm 32:8","text":"I will instruct you and teach you.","message":"God will guide your steps.","prayer":"Lead me, Lord. Amen."},
+"message": """
+God’s love is not temporary or conditional. It is everlasting and unchanging. No matter what we go through or how we feel, His love remains constant.
 
-{"title":"Be Thankful","verse":"1 Thessalonians 5:18","text":"Give thanks in all circumstances.","message":"Gratitude changes everything.","prayer":"Help me stay thankful. Amen."},
+Sometimes people may fail us or leave us, but God never does. His love reaches us in our weakest moments and lifts us up.
 
-{"title":"God is Good","verse":"Psalm 100:5","text":"The Lord is good.","message":"God’s goodness never fails.","prayer":"Thank You for Your goodness. Amen."},
+You are deeply valued and known by God.
+""",
 
-{"title":"Seek God First","verse":"Matthew 6:33","text":"Seek first His kingdom.","message":"Put God first in everything.","prayer":"Help me seek You first. Amen."},
+"application": """
+When you feel unloved or forgotten, remind yourself of God’s truth. You are always loved by Him.
+""",
 
-{"title":"God Gives Wisdom","verse":"James 1:5","text":"Ask God for wisdom.","message":"God gives wisdom freely.","prayer":"Give me wisdom, Lord. Amen."},
+"prayer": """
+Thank You Lord for loving me unconditionally. Help me to always remember how valuable I am in Your eyes. Amen.
+"""
+},
 
-{"title":"Rest in God","verse":"Matthew 11:28","text":"Come to me, all who are weary.","message":"Find rest in God’s presence.","prayer":"Give me rest, Lord. Amen."}
+{
+"title": "Do Not Fear",
+"verse": "Isaiah 41:10",
+"text": "Do not fear, for I am with you.",
+
+"message": """
+Fear often comes when we focus on problems instead of God’s presence. But God reminds us that we are never alone.
+
+His presence gives courage and strength in difficult times. When we trust Him, fear loses its power over us.
+
+God is always with us, guiding and protecting us.
+""",
+
+"application": """
+When fear rises, speak God’s promises out loud. Remind yourself that He is with you always.
+""",
+
+"prayer": """
+Lord, remove every fear in my heart. Help me walk boldly knowing You are with me. Amen.
+"""
+}
 ]
 def get_daily_devotional():
     today = datetime.date.today()

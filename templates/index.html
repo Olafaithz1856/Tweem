@@ -12,7 +12,15 @@
     <img src="{{ url_for('static', filename='logo.jpg') }}" alt="TWEEM Logo" class="logo">
         <h2>Welcome <span>Back</span></h2>
         <p class="subtitle">Login to TWEEM Spiritual Counseling Bot</p>
-
+{% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <div style="background:#ffe6e6; padding:10px; border-radius:5px;">
+      {% for message in messages %}
+        <p>{{ message }}</p>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
 <form method="POST">
     <input type="email" name="email" placeholder="Enter your email" required>
     <input type="password" name="password" placeholder="Enter your password" required>
