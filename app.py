@@ -487,7 +487,6 @@ def prayer():
 from google import genai
 import os
 import time
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 # ---------- RULE-BASED ----------
 def rule_based_response(user_message, history=""):
@@ -580,9 +579,9 @@ def chat():
         # ---------- STEP 2: GEMINI (ONLY IF NEEDED) ----------
         if not ai_reply:
             try:
-                time.sleep(1)  
+                time.sleep(1)  # avoid rate limit
 
-                response = gemini_client.generate_content(
+                response = client.models.generate_content(
                     model="gemini-2.5-flash",
                     contents=f"""
 You are a compassionate Christian spiritual counselor.
@@ -650,10 +649,10 @@ Tell me more — I'm listening."""
 import datetime
 from google import genai
 import os
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 # ================= DEVOTIONAL LIST =================
 DEVOTIONALS = [
+
 {
 "title": "Trusting God",
 "verse": "Proverbs 3:5-6",
@@ -763,6 +762,7 @@ When fear rises, speak God’s promises out loud. Remind yourself that He is wit
 Lord, remove every fear in my heart. Help me walk boldly knowing You are with me. Amen.
 """
 }
+
 ]
 def get_daily_devotional():
     today = datetime.date.today()
