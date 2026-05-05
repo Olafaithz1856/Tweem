@@ -294,7 +294,7 @@ def dashboard():
     for chat in chats:
         notifications.append("Counselor replied to your message")
 
-    # Verse of the Day (FIXED INDENTATION)
+    # ✅ Verse of the Day (FIXED INDENTATION)
     today = str(date.today())
 
     cursor.execute(
@@ -429,71 +429,9 @@ def prayer():
     )
 
 # ---------- CHAT ----------
-from google import genai
-import os
 import time
+gemini_client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
-
-# ---------- RULE-BASED ----------
-def rule_based_response(user_message, history=""):
-    msg = user_message.lower()
-
-    # 🔹 greetings
-    if any(word in msg for word in ["hi", "hello", "hey"]):
-        return """Hello 🤍
-
-I'm really glad you reached out today.
-How are you feeling right now?"""
-
-    if any(greet in msg for greet in ["good morning", "good afternoon", "good evening"]):
-        return """Hello 🤍
-
-I'm really glad you came here.
-
-You can talk to me about anything at all—how are you feeling today?"""
-
-    # 🔹 happy
-    if any(word in msg for word in ["happy", "joy", "excited", "grateful"]):
-        return """That’s beautiful to hear 🤍
-
-“This is the day the Lord has made; let us rejoice and be glad in it.” — Psalm 118:24
-
-What’s been bringing you joy lately?"""
-
-    # 🔹 sadness
-    if any(word in msg for word in ["sad", "down", "unhappy"]):
-        return """I’m really sorry you're feeling this way 🤍
-
-“The Lord is close to the brokenhearted.” — Psalm 34:18
-
-Do you want to share what’s been weighing on your heart?"""
-
-    # 🔹 deep emotional
-    if any(word in msg for word in ["depressed", "hopeless", "tired"]):
-        return """I'm really sorry you're going through this 🤍
-
-“Cast all your anxiety on Him because He cares for you.” — 1 Peter 5:7
-
-You don’t have to carry this alone. I'm here with you."""
-
-    # 🔹 prayer
-    if "pray" in msg:
-        return """Let’s pray together 🤍
-
-Heavenly Father, please bring peace, strength, and comfort right now.
-Remind them they are not alone. Amen."""
-
-    # 🔹 memory awareness
-    if "job" in msg and "sad" in history.lower():
-        return """Losing something important like a job can really affect your heart 🤍
-
-But please remember, your worth is not defined by your situation.
-
-God still has a plan for you."""
-
-    return None
-    
 @app.route("/chat", methods=["GET", "POST"])
 def chat():
     if "user_id" not in session:
@@ -513,67 +451,45 @@ def chat():
         )
         conn.commit()
 
-        # Insert temporary message
+        # Temporary AI typing message
+        ai_reply = "AI is thinking..."
         cursor.execute(
             "INSERT INTO chat_messages (user_id, role, message) VALUES (?, ?, ?)",
-            (session["user_id"], "assistant", "Typing...")
+            (session["user_id"], "assistant", ai_reply)
         )
         conn.commit()
 
-        # ---------- STEP 1: RULE-BASED ----------
-        ai_reply = rule_based_response(user_message)
+        # Build the system prompt for structured counseling
+        system_prompt = """
+        You are a compassionate Christian spiritual counselor. Always structure your reply in this style:
+        1. Greet the user warmly.
+        2. Comfort & encourage them based on their message.
+        3. Share a relevant Bible verse.
+        4. Give spiritual advice in plain, human-friendly language.
+        5. Suggest a simple practical step they can take.
+        6. Keep it readable, human, and empathetic. 
+        7. Split naturally into paragraphs, no markdown symbols, no headers.
+        """
 
-        # ---------- STEP 2: GEMINI (ONLY IF NEEDED) ----------
-        if not ai_reply:
-            try:
-                time.sleep(1)  # avoid rate limit
+        try:
+            # Call Gemini API
+            response = gemini_client.models.generate_content(
+                model="gemini-2.5-flash",
+                contents=f"{system_prompt}\n\nUser: {user_message}"
+            )
 
-                response = client.models.generate_content(
-                    model="gemini-2.5-flash",
-                    contents=f"""
-You are a compassionate Christian spiritual counselor.
-User: {user_message} 
-Your role is to: 
-- Comfort users emotionally
-- Provide spiritual guidance based on biblical principles 
-- Respond naturally to ANY user input Rules: 
-1. Be warm and kind 
-2. Understand user deeply 
-3. Comfort emotional users first 
-4. Include a Bible verse when appropriate 
-5. Give simple spiritual advice 
-6. Ask gentle follow-up questions 
-7. Never judge 
-8. Suggest a human counselor if needed 
-Style: 
-- Natural conversation 
-- Short paragraphs 
-- Friendly tone
-"""
-                )
+            ai_reply = response.text.strip()
 
-                if response and response.text:
-                    ai_reply = response.text.strip()
-                else:
-                    ai_reply = "I'm here with you 🤍 Tell me more."
+        except Exception as e:
+            print("Gemini AI Error:", e)
+            ai_reply = "AI service temporarily unavailable. Please try again later."
 
-            except Exception as e:
-                print("Gemini Error:", e)
-
-                # ---------- STEP 3: FALLBACK ----------
-                ai_reply = """I'm here with you 🤍
-
-I'm having a small delay connecting right now, but I still care about what you're going through.
-
-Tell me more — I'm listening."""
-
-        # ---------- UPDATE MESSAGE ----------
+        # Update AI response in the database (replace the temporary "thinking..." message)
         cursor.execute(
             "SELECT id FROM chat_messages WHERE user_id = ? AND role = ? ORDER BY id DESC LIMIT 1",
             (session["user_id"], "assistant")
         )
         last_ai = cursor.fetchone()
-
         if last_ai:
             cursor.execute(
                 "UPDATE chat_messages SET message = ? WHERE id = ?",
@@ -581,7 +497,7 @@ Tell me more — I'm listening."""
             )
             conn.commit()
 
-    # Fetch messages
+    # Fetch all messages to display
     cursor.execute(
         "SELECT * FROM chat_messages WHERE user_id = ? ORDER BY id ASC",
         (session["user_id"],)
@@ -591,107 +507,51 @@ Tell me more — I'm listening."""
 
     return render_template("chat.html", messages=messages)
 
+#--------- BIBBLE -------- 
 #--------- BIBLE -------- 
 
-import datetime
-from google import genai
 import os
-
-client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
-
-# ================= DEVOTIONAL LIST =================
-DEVOTIONALS = [
-{"title":"Trusting God","verse":"Proverbs 3:5-6","text":"Trust in the Lord with all your heart.","message":"Even when life feels confusing, God knows the way.","prayer":"Lord, help me trust You more each day. Amen."},
-
-{"title":"God’s Strength","verse":"Isaiah 40:31","text":"Those who hope in the Lord will renew their strength.","message":"God gives strength when you feel weak.","prayer":"Father, renew my strength today. Amen."},
-
-{"title":"Peace in Christ","verse":"John 14:27","text":"Peace I leave with you; my peace I give you.","message":"God’s peace is greater than any worry.","prayer":"Lord, fill me with Your peace. Amen."},
-
-{"title":"You Are Loved","verse":"Jeremiah 31:3","text":"I have loved you with an everlasting love.","message":"God loves you deeply, always.","prayer":"Thank You Lord for loving me. Amen."},
-
-{"title":"Do Not Fear","verse":"Isaiah 41:10","text":"Do not fear, for I am with you.","message":"God is always with you, even in fear.","prayer":"Lord, remove my fear and give me courage. Amen."},
-
-{"title":"God Provides","verse":"Philippians 4:19","text":"God will meet all your needs.","message":"God knows what you need and will provide.","prayer":"Father, I trust Your provision. Amen."},
-
-{"title":"New Beginning","verse":"2 Corinthians 5:17","text":"Anyone in Christ is a new creation.","message":"Every day is a fresh start with God.","prayer":"Lord, help me walk in newness today. Amen."},
-
-{"title":"Stay Strong","verse":"Joshua 1:9","text":"Be strong and courageous.","message":"God is with you wherever you go.","prayer":"Give me strength, Lord. Amen."},
-
-{"title":"God Cares","verse":"1 Peter 5:7","text":"Cast all your anxiety on Him.","message":"You don’t have to carry your burdens alone.","prayer":"Lord, I give You my worries. Amen."},
-
-{"title":"Joy in the Lord","verse":"Psalm 118:24","text":"This is the day the Lord has made.","message":"Choose joy today.","prayer":"Help me rejoice today, Lord. Amen."},
-
-{"title":"God is Near","verse":"Psalm 34:18","text":"The Lord is close to the brokenhearted.","message":"God is closest when you feel broken.","prayer":"Stay near me Lord. Amen."},
-
-{"title":"Faith Over Fear","verse":"2 Timothy 1:7","text":"God gave us a spirit not of fear.","message":"Walk in faith, not fear.","prayer":"Strengthen my faith, Lord. Amen."},
-
-{"title":"God is Light","verse":"1 John 1:5","text":"God is light; in Him is no darkness.","message":"God brings clarity into confusion.","prayer":"Shine Your light in my life, Lord. Amen."},
-
-{"title":"Be Patient","verse":"Romans 12:12","text":"Be patient in affliction.","message":"God is working even when you wait.","prayer":"Teach me patience, Lord. Amen."},
-
-{"title":"God is Faithful","verse":"Lamentations 3:23","text":"His mercies are new every morning.","message":"God is faithful every single day.","prayer":"Thank You for Your faithfulness. Amen."},
-
-{"title":"Walk in Love","verse":"Ephesians 5:2","text":"Walk in the way of love.","message":"Let love guide your actions today.","prayer":"Help me show love, Lord. Amen."},
-
-{"title":"God is My Refuge","verse":"Psalm 46:1","text":"God is our refuge and strength.","message":"Run to God when life feels heavy.","prayer":"Be my refuge, Lord. Amen."},
-
-{"title":"Hope in God","verse":"Romans 15:13","text":"May God fill you with hope.","message":"Hope is found in God alone.","prayer":"Fill me with hope today. Amen."},
-
-{"title":"Stay Humble","verse":"James 4:10","text":"Humble yourselves before the Lord.","message":"God lifts those who stay humble.","prayer":"Keep me humble, Lord. Amen."},
-
-{"title":"God Guides","verse":"Psalm 32:8","text":"I will instruct you and teach you.","message":"God will guide your steps.","prayer":"Lead me, Lord. Amen."},
-
-{"title":"Be Thankful","verse":"1 Thessalonians 5:18","text":"Give thanks in all circumstances.","message":"Gratitude changes everything.","prayer":"Help me stay thankful. Amen."},
-
-{"title":"God is Good","verse":"Psalm 100:5","text":"The Lord is good.","message":"God’s goodness never fails.","prayer":"Thank You for Your goodness. Amen."},
-
-{"title":"Seek God First","verse":"Matthew 6:33","text":"Seek first His kingdom.","message":"Put God first in everything.","prayer":"Help me seek You first. Amen."},
-
-{"title":"God Gives Wisdom","verse":"James 1:5","text":"Ask God for wisdom.","message":"God gives wisdom freely.","prayer":"Give me wisdom, Lord. Amen."},
-
-{"title":"Rest in God","verse":"Matthew 11:28","text":"Come to me, all who are weary.","message":"Find rest in God’s presence.","prayer":"Give me rest, Lord. Amen."}
-]
-def get_daily_devotional():
-    today = datetime.date.today()
-    index = today.toordinal() % len(DEVOTIONALS)
-    return DEVOTIONALS[index]
+# Initialize Gemini client
+gemini_client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 @app.route("/bible", methods=["GET", "POST"])
 def bible():
     verse = ""
+    devotional = ""
     search_results = []
 
-    # 🔥 LOCAL DEVOTIONAL (ALWAYS WORKS)
-    daily = get_daily_devotional()
-
-    devotional = f"""
-Today's Devotion
-
-Title: {daily['title']}
-
-Bible Verse:
-"{daily['text']}" — {daily['verse']}
-
-Message:
-{daily['message']}
-
-Prayer:
-{daily['prayer']}
-"""
-
-    # 🔹 OPTIONAL GEMINI (UPGRADE ONLY)
+    # 🔹 DAILY DEVOTIONAL (USING GEMINI)
     try:
-        response = client.models.generate_content(
-            model="gemini-2.5-flash",
-            contents="Write a short Christian devotional with verse, message, and prayer."
+        # Use lighter model to avoid free-tier quota exhaustion
+        model = genai.GenerativeModel("gemini-1.5-flash")
+
+        response = model.generate_content(
+            "Write a short Christian devotional with a Bible verse, message, and prayer. "
+            "Make it simple, human-like, warm, and friendly. Do not use symbols like ** or ---."
         )
 
-        if response and response.text:
-            devotional = response.text.strip()
+        # Safe extraction of text
+        devotional = getattr(response, "text", "").strip()
+
+        if not devotional:
+            devotional = "Today's devotion is not available right now."
 
     except Exception as e:
-        print("Gemini Devotional Error:", e)
-       
+        print("Devotional Error:", e)
+        # ✅ FALLBACK DEVOTION
+        devotional = """Today's Devotion
+
+Bible Verse:
+"The Lord is my shepherd; I shall not want." — Psalm 23:1
+
+Message:
+Even when life feels uncertain, God is guiding you every step of the way. 
+You may not see the full path, but He sees the end from the beginning.
+
+Prayer:
+Lord, help me trust You even when I don't understand. Lead me and give me peace. Amen.
+"""
+
     # 🔹 SCRIPTURE SEARCH
     if request.method == "POST":
         reference = request.form.get("reference")
@@ -711,32 +571,6 @@ Prayer:
         devotional=devotional,
         search_results=search_results
     )
-
-@app.route("/save_verse", methods=["POST"])
-def save_verse():
-    verse = request.form.get("verse")
-
-    conn = sqlite3.connect("database.db")
-    cursor = conn.cursor()
-
-    cursor.execute("INSERT INTO saved_scriptures (verse) VALUES (?)", (verse,))
-    conn.commit()
-    conn.close()
-
-    return redirect(url_for("saved_scriptures"))
-
-@app.route("/saved_scriptures")
-def saved_scriptures():
-    conn = sqlite3.connect("database.db")
-    cursor = conn.cursor()
-
-    cursor.execute("SELECT verse FROM saved_scriptures")
-    verses = cursor.fetchall()
-
-    conn.close()
-
-    return render_template("saved_scriptures.html", verses=verses)
-
 #------- Admin dashboad --------
 @app.route("/admin/dashboard")
 def admin_dashboard():
@@ -792,23 +626,7 @@ def admin_dashboard():
         recent_chats=recent_chats,
         recent_prayers=recent_prayers
     )
-
-#---------- help routes ---------
-@app.route("/help")
-def help():
-    return render_template("help.html")
-
-# ----- invite friends --------- 
-@app.route("/invite")
-def invite():
-    return render_template("invite.html")
-
-#--------- pricacy routes--------
-@app.route("/privacy")
-def privacy():
-    return render_template("privacy.html")
-
-# ---------- ADMI VIEW PRAYER ----------
+# ---------- ADMIN VIEW PRAYER ----------
 @app.route("/admin/prayers", methods=["GET", "POST"])
 def admin_prayers():
 
@@ -1335,7 +1153,7 @@ def contact():
         conn.commit()
         flash("Message sent successfully!")
 
-        #  EMAIL MUST BE INSIDE THIS BLOCK
+        # ✅ EMAIL MUST BE INSIDE THIS BLOCK
         try:
             send_email(
                 subject="New Contact Message - TWEEM",
@@ -1402,7 +1220,7 @@ def reply_contact(id):
     conn = sqlite3.connect("database.db")
     cursor = conn.cursor()
 
-    #  GET USER EMAIL
+    # 📩 GET USER EMAIL
     cursor.execute("SELECT email FROM contact_messages WHERE id=?", (id,))
     user = cursor.fetchone()
 
@@ -1485,5 +1303,5 @@ conn.close()
 conn.close()
 
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(debug=True)
+
