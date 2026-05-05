@@ -102,3 +102,32 @@ body {
 }.logo {
     box-shadow: 0 0 10px rgba(77, 163, 255, 0.6);
 }
+/* AUTH MOBILE */
+@media (max-width: 768px) {
+
+    .auth-box {
+        width: 90%;
+        padding: 30px 20px;
+    }
+
+    .auth-box h2 {
+        font-size: 20px;
+    }
+
+    .subtitle {
+        font-size: 13px;
+    }
+
+    .auth-box input {
+        font-size: 14px;
+    }
+
+    .auth-box button {
+        font-size: 14px;
+    }
+
+    .logo {
+        width: 80px;
+        height: 80px;
+    }
+}

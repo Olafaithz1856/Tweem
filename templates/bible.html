@@ -18,23 +18,35 @@
     <!-- 🔹 Bible Search -->
     <div class="bible-card">
         <h2>Search Scripture</h2>
+         <!-- Search Results -->
+          <form method="POST" class="chat-input">
 
-        <form method="POST">
-            <input type="text" name="reference" placeholder="Enter Bible reference e.g. John 3:16" required>
-            <button type="submit">Search</button>
-        </form>
+    <div class="input-wrapper">
 
+        <input type="text" name="references" placeholder="Enter Bible reference e.g. John 3:16" required>
+
+        <button type="submit" class="send-btn">
+            ➤
+        </button>
+    </div>
+    
         {% if search_results %}
         <div class="search-results">
             {% for result in search_results %}
                 <p><strong>{{ result.reference }}</strong></p>
                 <p>{{ result.text }}</p>
 
-                <form method="POST" action="/save_verse">
+                <form method="POST" action="/save_verse" class="save-form">
+
                     <input type="hidden" name="verse" value="{{ result.reference }} - {{ result.text }}">
-                    <button type="submit">Save Scripture</button>
+
+                    <button type="submit" class="save-btn">
+                        💾 Save Scripture
+                    </button>
+
                 </form>
 
+<hr>
                 <hr>
             {% endfor %}
         </div>
@@ -42,10 +54,12 @@
     </div>
 
     <!-- 🔹 Saved Scriptures -->
-    <div class="bible-card">
-        <h3>Saved Scriptures</h3> 
-        <a href="/saved_scriptures" class="btn">View Saved Scriptures</a>
-    </div>
+    <div class="saved-card">
+    <h3>Saved Scriptures</h3> 
+    <a href="/saved_scriptures" class="save-btn">
+        📖 View Saved Scriptures
+    </a>
+</div>
 
 </section>
 

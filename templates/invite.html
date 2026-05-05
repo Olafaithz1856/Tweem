@@ -1,0 +1,47 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+<div class="invite-card">
+
+    <h2>Invite a Friend</h2>
+
+    <p class="invite-text">
+        Share this app with someone who might need encouragement today ❤️
+    </p>
+
+    <!-- SHARE MESSAGE -->
+    <textarea id="inviteMessage" readonly>
+Hey! I've been using this Bible & Counseling app, and it’s really helpful 🙏  
+You should check it out: https://tweem.onrender.com
+    </textarea>
+
+    <!-- BUTTONS -->
+    <div class="invite-actions">
+
+        <button onclick="copyLink()" class="invite-btn">
+            🔗 Copy Link
+        </button>
+
+        <a id="whatsappShare" target="_blank" class="invite-btn whatsapp">
+            📱 Share on WhatsApp
+        </a>
+
+    </div>
+
+</div>
+<script>
+function copyLink() {
+    const text = document.getElementById("inviteMessage");
+    text.select();
+    document.execCommand("copy");
+    alert("Link copied!");
+}
+
+// WhatsApp link setup
+const message = encodeURIComponent(document.getElementById("inviteMessage").value);
+document.getElementById("whatsappShare").href =
+    "https://wa.me/?text=" + message;
+</script>
+
+{% endblock %}

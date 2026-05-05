@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" href="static/css/auth.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Account | TWEEM</title>
 </head>
 <body>
@@ -17,7 +19,7 @@
     <input type="text" name="username" placeholder="username" required>
     <input type="email" name="email" placeholder="Email address" required>
     <input type="password" name="password" placeholder="Password">
-    <input type="password" name="password" placeholder="Comfirm password">
+    <input type="password" name="confirm_password" placeholder="Confirm password">
     <button type="submit">Register</button>
 </form>
 

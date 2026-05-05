@@ -46,53 +46,110 @@ body::before {
 /* MOBILE RESPONSIVE */
 @media (max-width: 768px) {
 
-    /* Sidebar */
-    .sidebar {
-        width: 100%;
-        position: relative;
+    /* SHOW HAMBURGER */
+    .mobile-menu-toggle {
+        
+        padding: 10px 12px;
+        border-radius: 6px;
+        font-size: 20px;
     }
 
-    /* Main content */
-    .main-content {
-        margin-left: 0;
+    /* HIDE LOGO TOGGLE */
+    .logo-toggle {
+        display: none;
+    }
+
+    /* CONTENT */
+    .content {
         padding: 15px;
     }
 
-    /* Cards */
-    .welcome-card,
-    .contact-card,
-    .reply-card {
-        padding: 15px;
-        font-size: 14px;
-    }
-
-    /* Grid (About page, etc.) */
-    .about-features {
-        grid-template-columns: 1fr;
-    }
-
-    /* Topbar */
+    /* TOPBAR */
     .topbar {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-    }
-
-    /* Profile section */
-    .topbar-right {
-        width: 100%;
+        display: flex;
         justify-content: space-between;
+        align-items: center;
+        padding: 10px;
+        background: transparent;
+        box-shadow: none;
     }
 
-    /* Buttons */
-    button {
+    /* 🔹 PROFILE */
+    .profile-img {
+        width: 35px;
+        height: 35px;
+    }
+
+    /* 🔹 CARDS */
+    .bible-card,
+    .chat-box,
+    .message,
+    .admin-info {
         width: 100%;
+        margin-bottom: 15px;
     }
 
-    /* Inputs */
-    input, textarea {
+    /* 🔹 FORMS */
+    input, button {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    /* 🔹 TEXT */
+    body {
         font-size: 14px;
     }
+    .sidebar {
+    position: fixed;
+    top: 0;
+    left: -260px;
+    width: 260px;
+    height: 100%;
+    background: linear-gradient(180deg, #0f172a, #1e293b);
+    transition: 0.3s ease;
+    z-index: 1000;
+    overflow-y: auto;
+}
+
+/* WHEN OPEN */
+.sidebar.active {
+    left: 0;
+}
+
+/* ============================= */
+/* DESKTOP TOGGLE (LOGO) */
+/* ============================= */
+
+.logo-toggle {
+    width: 40px;
+    cursor: pointer;
+}
+
+/* ============================= */
+/* HAMBURGER (HIDDEN ON DESKTOP) */
+/* ============================= */
+
+.mobile-menu-toggle {
+    display: none;
+    font-size: 24px;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+/* ============================= */
+/* MAIN CONTENT */
+/* ============================= */
+
+.content {
+    margin-left: 0 !important;
+    width: 100%;
+    padding: 20px;
+}
+
+/* ============================= */
+/* MOBILE RESPONSIVENESS */
+/* ============================= */
 }
 /* ================= APP LAYOUT ================= */
 
@@ -162,10 +219,6 @@ body {
     background: rgba(255,255,255,0.1);
 }
 
-.sidebar.collapsed .menu a {
-    opacity: 0;
-    pointer-events: none;
-}
 
 /* ================= CONTENT ================= */
 
@@ -629,6 +682,7 @@ font-size:14px;
 opacity:0.8;
 margin-top:4px;
 }
+
 @media (max-width:900px){
 
 .analytics-cards{

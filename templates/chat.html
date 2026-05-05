@@ -4,22 +4,45 @@
 
 <div class="bible-card">
 
-    <h2>Counseling Chat</h2>
+    <h2 class="chat-title">Counseling Chat</h2>
 
     <div class="chat-box" id="chat-box">
+
         {% for msg in messages %}
-    <div class="message {{ msg.role }}">
-            {% for paragraph in msg.message.split('\n\n') %}
-                <p style="margin-bottom: 10px;">{{ paragraph }}</p>
-            {% endfor %}
+        
+            <div class="chat-message {{ msg.role }}">
+                
+                <div class="bubble">
+                    {% for paragraph in msg.message.split('\n\n') %}
+                        <p>{{ paragraph }}</p>
+                    {% endfor %}
+                </div>
+
+            </div>
+
+        {% endfor %}
+
+        <div class="chat-message bot typing" id="typing-indicator" style="display:none;">
+            <div class="bubble">Typing...</div>
         </div>
-    {% endfor %}
+
     </div>
 
     <form method="POST" class="chat-input">
+
+    <div class="input-wrapper">
+
         <input type="text" name="message" placeholder="Share what’s on your heart..." required>
-        <button type="submit">Send</button>
-    </form>
+
+        <button type="submit" class="send-btn">
+            ➤
+        </button>
+
+    </div>
+
+</form>
+
+</div>
 
 </div>
 

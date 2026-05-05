@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <title>TWEEM</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/mobile.css') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Poppins:wght@300;400;500&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -50,12 +52,9 @@
 <body class="light">
 
 <div class="app">
-
+<button id="menu-toggle-btn" onclick="toggleMenu()" class="menu-toggle-btn">☰</button>
     <!-- Sidebar -->
     <aside class="sidebar" id="sidebar">
-        <div class="logo" onclick="toggleSidebar()">
-            <img src="{{ url_for('static', filename='images/Tweem logo.jpg') }}" class="app-logo">
-        </div>
 
         <nav class="menu">
             {% if session.get("role") == "admin" %}
@@ -179,7 +178,12 @@
     </main>
 
 </div>
-
+<script>
+function toggleMenu() {
+    var sidebar = document.getElementById("sidebar");
+    sidebar.classList.toggle("active");
+}
+</script>
 <script src="{{ url_for('static', filename='js/app.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </body>

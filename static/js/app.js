@@ -18,3 +18,29 @@ function switchContent(newContentHTML) {
 }
 document.body.classList.toggle("dark");
 document.body.classList.toggle("light");
+
+
+function toggleMenu() {
+    var sidebar = document.getElementById("sidebar");
+    sidebar.classList.toggle("active");
+}
+
+function scrollToBottom() {
+    const chatBox = document.getElementById("chat-box");
+    if (chatBox) {
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+}
+
+function showTyping() {
+    const typing = document.getElementById("typing-indicator");
+    if (typing) typing.style.display = "flex";
+}
+
+function hideTyping() {
+    const typing = document.getElementById("typing-indicator");
+    if (typing) typing.style.display = "none";
+}
+
+// Auto scroll on load
+window.onload = scrollToBottom;
